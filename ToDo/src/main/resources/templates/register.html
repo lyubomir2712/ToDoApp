@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - ToDo App</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="red-line"></div>
+
+        <h1>Join Us!</h1>
+        <h2>Create Your Account</h2>
+
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/register}" method="post" th:object="${user}">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" th:field="*{username}" required minlength="3" maxlength="50">
+                <span th:if="${usernameError}" style="color: #c84b4b; font-size: 12px; position: relative; z-index: 1;" th:text="${usernameError}"></span>
+                <span th:if="${#fields.hasErrors('username')}" style="color: #c84b4b; font-size: 12px; position: relative; z-index: 1;" th:errors="*{username}"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" th:field="*{email}" required>
+                <span th:if="${emailError}" style="color: #c84b4b; font-size: 12px; position: relative; z-index: 1;" th:text="${emailError}"></span>
+                <span th:if="${#fields.hasErrors('email')}" style="color: #c84b4b; font-size: 12px; position: relative; z-index: 1;" th:errors="*{email}"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" th:field="*{password}" required minlength="6">
+                <span th:if="${#fields.hasErrors('password')}" style="color: #c84b4b; font-size: 12px; position: relative; z-index: 1;" th:errors="*{password}"></span>
+            </div>
+
+            <div class="form-group text-center">
+                <button type="submit" class="btn btn-primary">Register</button>
+            </div>
+        </form>
+
+        <div class="text-center" style="margin-top: 20px; position: relative; z-index: 1;">
+            <p>Already have an account? <a th:href="@{/login}" class="link">Login here</a></p>
+        </div>
+    </div>
+</body>
+</html>

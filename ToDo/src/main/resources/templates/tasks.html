@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tasks - ToDo App</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="red-line"></div>
+
+        <div class="header">
+            <div>
+                <h1>My ToDo List</h1>
+                <p class="welcome-text">Welcome, <span th:text="${username}"></span>!</p>
+            </div>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-danger btn-small">Logout</button>
+            </form>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+        <div class="new-task-form">
+            <h2 style="margin-bottom: 20px;">Add New Task</h2>
+            <form th:action="@{/tasks/create}" method="post">
+                <div class="form-group">
+                    <label for="title">Task Title *</label>
+                    <input type="text" id="title" name="title" required placeholder="Enter task title...">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description (Optional)</label>
+                    <textarea id="description" name="description" placeholder="Add more details about your task..."></textarea>
+                </div>
+
+                <div class="form-group text-center">
+                    <button type="submit" class="btn btn-success">Add Task</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="filter-buttons">
+            <a th:href="@{/tasks}" class="btn btn-secondary btn-small">All Tasks</a>
+            <a th:href="@{/tasks(filter='incomplete')}" class="btn btn-secondary btn-small">Incomplete</a>
+            <a th:href="@{/tasks(filter='completed')}" class="btn btn-secondary btn-small">Completed</a>
+        </div>
+
+        <h2 style="position: relative; z-index: 1;" th:text="${filterType + ' Tasks'}"></h2>
+
+        <div class="task-list">
+            <div th:if="${tasks.isEmpty()}" style="text-align: center; color: #7a6a5a; padding: 40px; position: relative; z-index: 1;">
+                <p style="font-size: 18px;">No tasks found. Start by adding a new task above!</p>
+            </div>
+
+            <div th:each="task : ${tasks}" th:class="${task.completed} ? 'task-item completed' : 'task-item'">
+                <div th:id="'task-view-' + ${task.id}">
+                    <div class="task-meta">
+                        Created: <span th:text="${#temporals.format(task.createdAt, 'MMM dd, yyyy HH:mm')}"></span>
+                    </div>
+
+                    <div class="task-title" th:text="${task.title}"></div>
+
+                    <div class="task-description" th:if="${task.description != null and !task.description.isEmpty()}" th:text="${task.description}"></div>
+
+                    <div class="task-actions">
+                        <form th:action="@{/tasks/{id}/toggle(id=${task.id})}" method="post" style="display: inline;">
+                            <button type="submit" th:class="${task.completed} ? 'btn btn-secondary btn-small' : 'btn btn-success btn-small'">
+                                <span th:text="${task.completed} ? 'Mark Incomplete' : 'Mark Complete'"></span>
+                            </button>
+                        </form>
+
+                        <button type="button" class="btn btn-primary btn-small" th:onclick="'toggleEdit(' + ${task.id} + ')'">
+                            Edit
+                        </button>
+
+                        <form th:action="@{/tasks/{id}/delete(id=${task.id})}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                            <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div th:id="'task-edit-' + ${task.id}" style="display: none;">
+                    <form th:action="@{/tasks/{id}/update(id=${task.id})}" method="post" class="edit-form">
+                        <div class="form-group">
+                            <label th:for="'edit-title-' + ${task.id}">Task Title *</label>
+                            <input type="text" th:id="'edit-title-' + ${task.id}" name="title" th:value="${task.title}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label th:for="'edit-description-' + ${task.id}">Description</label>
+                            <textarea th:id="'edit-description-' + ${task.id}" name="description" th:text="${task.description}"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" name="completed" th:checked="${task.completed}" class="task-checkbox">
+                                Mark as completed
+                            </label>
+                        </div>
+
+                        <div class="task-actions">
+                            <button type="submit" class="btn btn-success btn-small">Save Changes</button>
+                            <button type="button" class="btn btn-secondary btn-small" th:onclick="'toggleEdit(' + ${task.id} + ')'">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        function toggleEdit(taskId) {
+            var viewDiv = document.getElementById('task-view-' + taskId);
+            var editDiv = document.getElementById('task-edit-' + taskId);
+
+            if (viewDiv.style.display === 'none') {
+                viewDiv.style.display = 'block';
+                editDiv.style.display = 'none';
+            } else {
+                viewDiv.style.display = 'none';
+                editDiv.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
